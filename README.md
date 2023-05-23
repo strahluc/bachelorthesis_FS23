@@ -1,6 +1,6 @@
 # bachelorthesis_FS23
 
-sunspot_data
+sunspot_data<br>
 -> enthält die Daten der Sonnenflecken und ein Python File für die Analyse.
 
 sunspot_data
