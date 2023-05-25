@@ -1,0 +1,315 @@
+---
+title: 'BA: EVT Berechnungen'
+---
+
+Libraries importieren
+
+```{r message=FALSE, warning=FALSE}
+library(evir)
+library(eva)
+```
+
+ Daten der Sonneneruptionen importieren und als nummerische Werte aufbereiten
+
+```{r}
+df_sf <- read.csv2("data_files/R_df_solarflare.csv", header = FALSE)
+solarflare = as.numeric(as.list(df_sf$V1))
+head(solarflare)
+```
+
+Beschreibende Statistiken, um die Daten etwas kennen zu lernen.
+
+```{r}
+hist(solarflare, 30, col=4)
+hist(solarflare, 50, col=4)
+hist(solarflare, 100, col=4)
+summary(solarflare)
+sd(solarflare) # Standardabweichung
+
+```
+Die Daten sind rechtsschief (skewed-to-the-right). Das zeigt sich einerseits am Histogram und andererseits lässt sich das erkennen, weil das arithmetische Mittel (mean) grösser ist als der Median.
+
+Die Standardabweichung (standard deviation) ist um ein vielfaches grösser das arithmetische Mittel und der Median. Das bedeutet, dass es bei den Daten eine grosse Varianz (variability) hat. 
+
+---------------------------------------------------------------------------
+
+Mit einem exponentiellen QQ-Diagramm können wir versuchen zu verstehen, ob es starke Ausreisser gibt. Die Funktion `qplot` basiert auf einem GPD, so dass der Exponentialwert leicht zu ermitteln ist, indem der Parameter xi auf 0 gesetzt wird.
+
+```{r}
+# Abbildung 17: QQ-Plot
+qplot(solarflare,xi=0)
+```
+
+Die starke Krümmung (concavity) im Diagramms ist ein deutliches Zeichen für das Vorhandensein von starken Ausreissern (heavy tails).
+
+---------------------------------------------------------------------------
+
+Folgend wird mit der Funktion 'emplot' ein Zipf-Plot (log-log Plot) erstellt, um das Verhalten der Überlebensfunktion (survival function) zu analysieren. Der Parameter *xy* wird benötigt, um eine log-logarithmische Darstellung zu erhalten.
+
+```{r fig1, fig.height = 4, fig.width = 4}
+# Abbildung 18: Zipf-Plot
+emplot(solarflare,'xy')
+```
+
+Der Zipf-Plot zeigt eine abfallende Kurve, was auf eine Fat-Tail-Verteilung hindeutet. Weiter liefert die abfallende Kurve einen Hinweis darauf, dass es sich um eine Log-Normalverteilung handelt.
+
+---------------------------------------------------------------------------
+
+Darstellung von aggregierten Zipf-Plots für weitere Analyse:
+
+```{r fig1, fig.height = 6, fig.width = 6}
+# Die Daten für den Zipf-Plot mit der ersten Aggregation importieren
+df_zifp1 <- read.csv2("data_files/R_df_solarflare_zipf_1.csv", header = FALSE)
+zipf_1 = as.numeric(as.list(df_zifp1$V1))
+head(zipf_1)
+
+# Die Daten für den Zipf-Plot mit der zweiten Aggregation importieren
+df_zifp2 <- read.csv2("data_files/R_df_solarflare_zipf_2.csv", header = FALSE)
+zipf_2 = as.numeric(as.list(df_zifp2$V1))
+head(zipf_2)
+
+# Die Daten für den Zipf-Plot mit der dritten Aggregation importieren
+df_zifp3 <- read.csv2("data_files/R_df_solarflare_zipf_3.csv", header = FALSE)
+zipf_3 = as.numeric(as.list(df_zifp3$V1))
+head(zipf_3)
+
+# Abbildung 20: zipf-Plots
+par(mfrow = c(2, 2))
+# 20a.) Zipf-Plot ab dem Wert 5e-06
+emplot(solarflare[solarflare > 0.000005],'xy')
+# 20b.) Zipf-Plot der ersten Aggregation
+emplot(zipf_1,'xy')
+# 20c.) Zipf-Plot der zweiten Aggregation
+emplot(zipf_2,'xy')
+# 20d.) Zipf-Plot der dritten Aggregation
+emplot(zipf_3,'xy')
+```
+
+Der Verlauf der Linie bleibt auch bei den aggregierten Zipf-Plots stabil, was auf eine Pareto-Verteilung hinweist.
+
+
+```{r}
+# Abbildung 23: Zipf-Plot mit Markierungen bei den Perzentilen 81, 97.6 und 99.55
+emplot(solarflare,'xy')
+abline(v=quantile(solarflare, c(0.81, 0.976, 0.9955)), lty=2)
+
+# Gebe die Werte der Perzentile 81, 97.6 und 99.55 aus
+quantile(solarflare, probs = c(0.81, 0.976, 0.9955))
+```
+
+
+
+
+
+---------------------------------------------------------------------------
+
+Der Zipf-Plot liefert zwar gute Hinweise, allerdings sollten die daraus gezogenen Erkenntnisse nochmals überprüft werden. Dafür 
+eignet sich der Mean-Excess Plot. Hier mit der Funktion 'meplot' erstellt.
+
+```{r fig1, fig.height = 5, fig.width = 8}
+meplot(solarflare)
+abline(v=quantile(solarflare, c(0.96,0.976, 0.991)), lty=2)
+
+# Gebe die Werte der Perzentile 96, 97.6 und 99.1 aus
+quantile(solarflare, probs = c(0.96,0.976, 0.991))
+
+```
+
+Die Kurve im Mean-Excess Plot deutet ebenfalls auf eine Log-Normalverteilung hin. Auch bekräftigt der Mean-Excess Plot die Annahme, dass es sich um eine Fat-Tail-Verteilung handelt.
+
+Je höher der Wert, desto weniger Daten gibt es in diesem Bereich. Deshalb können die einzelnen Datenpunkte ab Mitte der Kurve ignoriert werden.
+
+Dieser ME-Plot hat zwei interessante Stellen, die auf einen möglichen Threshold hinweisen: 
+
+1. Dort wo der "schwarze Strich" in einzelne Punkte übergeht -> ca. bei 0.0001
+2. Bei ca. 0.0004.
+
+Diese Werte können für die Eruirung eines passenden Thresholds von Nutzen sein.
+
+---------------------------------------------------------------------------
+
+Eine weiterer Plot, um die Verteilung besser zu verstehen, ist das Konzentrationsprofil (concentration profile).
+
+```{r}
+library(ineq)
+sort_solarflare=sort(solarflare) # Daten sortieren
+n=length(solarflare)
+CP=c() # Leeres Array für die Speicherung
+for (i in 1:n) {
+  CP[i]=ineq(sort_solarflare[i:n],type="Gini") # Truncated Gini
+}
+plot(1:n,CP,ylim=c(0,1)) 
+```
+
+Auch in diesem Plot deutet die immer stärker abfallende Kurve auf eine Log-Normalverteilung hin. Der letzte Teil des Diagramms kann aufgrund der begrenzten Anzahl Datenpunkte ignoriert werden.
+
+---------------------------------------------------------------------------
+
+Mit folgender Funktion kann ein Maximum-to-Sum (MS) Plot erstellt werden
+
+```{r}
+MSplot <- function(data,p=4) {
+  par(mfrow = c(2, 2)) 
+  x=abs(data)
+  for (i in 1:p) {
+    y=x^i
+    S=cumsum(y)
+    M=cummax(y)
+    R=M/S
+    plot(1:length(x),R,type='l', col=1, lwd=3, ylim=c(0,1),xlab='n', ylab='Rn', 
+         main=paste("MSplot for p=",i))
+  }
+  par(mfrow = c(1, 1)) 
+ # return(R)
+}
+```
+
+Ausführen soeben erstellten MSplot-Funktion.
+
+```{r}
+# Abbildung 21: Maximum-to-Sum Plot mit Exponenten 1-4
+MSplot(solarflare)
+```
+
+Statements from Video "MS PLot and Concentration Profil":
+1. "For a log-normal all [moments] are always finite and there."
+2. If the variance of our random variable is finite then we will see that the ratio [...] will converge towards zero [...] the more observations we consider.
+link to video: https://www.youtube.com/watch?v=3L2kVOUEtqw&list=PLgCR5H4IzggF2Gakd12EAxbYBK3rjAxLw&index=7
+
+(Für die Interpretaion auch das Paper "Tail risk of contagious diseases" berücksichtigen)
+
+Interpretation:
+Die ersten beiden Plots scheinen gegen 0 zu konvergieren und somit "endlich" zu sein. Ab Plot p=3 scheint die Varianz nicht mehr gegen 0 zu kovergieren und somit "unendlich" zu sein. Das bedeutet, dass alle p über 3 ebenfalls nicht gegen 0 konvergieren werden.
+
+Plot 3 und 4 sind ein Anzeichen dafür, dass die Verteilung möglicherweise fat-tailed ist. Auch falls das zutreffen sollte: bei einer Log-Normalverteilung sind Fat-Tails nicht gefährlich.
+
+
+---------------------------------------------------------------------------
+
+Folgend der Hill Plot:
+
+```{r}
+hill(solarflare)
+```
+easier to read: 7.0e-03 = 0.007 | 2.3e-04 = 0.00023| 9.9e-05 = 0.000099| ...
+
+Der Hill Plot deutet auf ein Alpha bei ca. 1.5 hin. (korrekt?)
+
+Mit diesen Daten scheint der Hill-Plot nicht sehr hilfreich zu sein. Da der Parameter Xi vermutlich null oder negativ sein wird, macht es in diesem Fall keinen Sinn den Hill-Plot zu verwenden.
+
+---------------------------------------------------------------------------
+
+Nun geht es darum einen passenden Threshold zu finden. Um den Threshold zu eruieren, wird die Funktion "gpd" mit den Daten und einem Threshold angewendet. Ein passender Threshold lässt sich durch folgende zwei Tests erkennen:
+
+1. Die beiden geschätzten Parameter 'xi' und 'beta' müssen signifikant sein. Das kann ermittelt werden, in dem der jeweilig geschätzte Wert (ests) der Parameter durch deren Standardfehler (ses) dividiert wird. Das Resultat darf sich nicht im Bereich [-2,2] befinden, da sich die Schätzung sonst nicht signifikant von 0 unterscheidet.
+
+2. Sobald der Parameter 'xi' relativ stabil bleibt, trotz Erhöhung des Thresholds.
+
+Notizen zur Suche des Thresholds:
+
+Ich habe mir alle Werte zwischen 0 und 0.001 im Schritt von 0.00001 anzeigen lassen (-> also kleine Schritte, Total 100 "Thresholds"). Erkenntnisse daraus:
+- Das letzte signifikante Xi ist mit der gpdFit-Funktion beim Threshold 0.0003, alles darüber ist nicht signifikant (bei der gpd-Funktion ist 0.00032 höchster signifikanter Wert)
+- Ab 0.0001 bleibt Xi bei 0.4 relativ stabil und signifikant
+
+Prüfung, ob Threshold 0.0001 sinnvoll:
+- Gemäss Mean-Excess-Plot und Zipf-Plot scheint der  Threshold bei 0.0001 vernünftig zu sein.
+- 0.0001 ist beim Perzentil 97.6 und somit ein Extremwert.
+- Parameter "beta" ist bei einem Threshold von 0.0001 auch signifikant
+
+-> Somit scheint der Threshold 0.0001 plausibel zu sein.
+
+```#{r}
+# Suche nach dem Schwellenwert zwischen 0.00001 und 0.0004 mit der gpd-Funktion (evir package)
+thresholds_1 <- seq(0.00001, 0.0004, by = 0.00001)
+
+for (i in thresholds_1) {
+  print(paste0("Schwellenwert: ",i))
+  print(paste0("Geschätzter Parameter Xi: ",gpd(solarflare, i)$par.ests[1]))
+  print(paste0("Standardfehler: ",gpd(solarflare, i)$par.ses[1]))
+  print("------------------------------")
+}
+
+```
+
+```{r}
+
+# Suche nach dem Schwellenwert zwischen 0.00001 und 0.0004 mit der gpdFit-Funktion (eva Package)
+thresholds_1 <- seq(0.00001, 0.0004, by = 0.00001)
+
+for (i in thresholds_1) {
+  print(paste0("Schwellenwert: ",i))
+  print(paste0("Geschätzter Parameter Xi: ",gpdFit(data=solarflare, threshold = i)$par.est[2]))
+  print(paste0("Standardfehler: ",gpdFit(data=solarflare, threshold = i)$par.ses[2]))
+  print("------------------------------")
+}
+
+```
+
+Outcome: Threshold 0.0001
+
+```{r}
+fit=gpd(solarflare,0.0001)
+
+tail(fit)
+```
+
+Mit dem Threshold von 0.0001 erhalten wir ein signifikantes xi=-0.4028 (ses=0.061). Für beta erhalten wir den Wert 0.00014, das ebenfalls signifikant ist (ses=0.000002)
+
+---------------------------------------------------------------------------
+
+Mit folgenden Plots kann überprüft werden wie gut das Ende passt:
+- Excess Distribution
+- Tail of Underlying Distribution
+- Scatterplot of Residuals
+- QQplot of Residuals
+
+
+```{r fig1, fig.height = 6, fig.width = 6}
+# Abbildung: 24
+#   24a.) Excess Distribution (Überschussverteilung)
+#   24b.) Tail of Underlying Distribution (Enden der zugrundeliegenden Verteilung)
+#   24c.) Scatterplot of Residuals (Streudiagramm der Residuen)
+#   24d.) QQplot of Residuals (QQ-Plot der Residuen)
+par(mfrow = c(2, 2))
+plot(fit, optlog = NA)
+#tailplot(fit)
+```
+
+-> Bei allen vier Plots ist das Ergebnis zufriedenstellend.
+
+---------------------------------------------------------------------------
+
+Verändert ein höherer Threshold den Wert von xi?
+
+```#{r}
+# Loop, um höhrere Thresholds zu testen
+thresholds_3 <- seq(0.0002, 0.0003, by = 0.00001)
+
+for (i in thresholds_1) {
+  print(paste0("Schwellenwert: ",i))
+  print(paste0("Geschätzter Parameter Xi: ",gpdFit(data=solarflare, threshold = i)$par.est[2]))
+  print(paste0("Standardfehler: ",gpdFit(data=solarflare, threshold = i)$par.ses[2]))
+  print("------------------------------")
+}
+```
+
+-> Das Xi bleibt ziemlich konstant.
+
+---------------------------------------------------------------------------
+
+Mit den geschätzten Parametern für die GPD kann nun die Wahrscheinlichkeit einer Sonneneruption der Klasse X45 (= 0.0045) geschätzt werden.
+
+```{r}
+
+# Schätze die Parameter mit einem Schwellenwert von 0.0001 während und erstelle ein gpdFit Objekt mit einer Zeitperiode von 365 Tagen
+z <- gpdFit(data=solarflare, threshold = 0.0001, npp =365)
+gpdRl(z, period = 74.4115, method = "profile", plot = FALSE) # Schätzung des Höchstwert innerhalb von 74.4115 Jahren
+gpdRl(z, period = 100, method = "profile", plot=FALSE) # Schätzung des Höchstwert innerhalb von 100 Jahren
+gpdRl(z, period = 10, method = "profile", plot=FALSE) # Schätzung des Höchstwert innerhalb von 10 Jahren
+
+# Validierungsplots
+plot(z)
+
+
+```
+-> Eine Sonneneruption der Klasse X45 tritt etwa alle 74 Jahre auf.
