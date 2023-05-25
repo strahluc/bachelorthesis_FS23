@@ -3,15 +3,16 @@ und den durchgeführten Berechnungen für die Bachelorarbeit von Luca Strahm an 
 
 Die Forschungsfrage der Arbeit lautet: Wie hoch ist die geschätzte Wahrscheinlichkeit, in der Zukunft einen Sonnensturm<br>
 von der Intensität des Carrington-Ereignisses zu beobachten?<br>
-
+<br>
+<br>
 Hier ist kurz aufgeführt, welche Dateien das Repository enthält<br>
-
-
-sunspot_data<br>
+<br>
+sunspot_data:<br>
   - "data_sunspots.csv": Datenset de Sonnenfleckendaten von SILO<br>
   - "Datenanalyse_Sonnenflecken.ipynb": ausführbare Python-Datei mit Datenaufbereitung und analyse der Sonnenfleckendaten<br>
   - "Datenanalyse_Sonnenflecken.html": Den Code der Python-Datei als nicht ausführbare HTML-Datei<br>
-
+<br>
+<br>
 solar_flare_data<br>
   - "Datenaufbereitung_Sonneneruptionen.ipynb": ausführbare Python-Datei für die Aufbereitung aller CSV-Dateien im Ordner "data_files"<br>
   - "Datenaufbereitung_Sonneneruptionen.html": Python-Code als nicht ausführbare HTML-Datei<br>
