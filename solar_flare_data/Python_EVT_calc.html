@@ -14666,7 +14666,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#import data from the created CSV-file</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># importiere die Daten vom aufbereiteten CSV &quot;df_extreme.csv&quot;</span>
 <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
     <span class="s2">&quot;data_files/df_extreme.csv&quot;</span><span class="p">,</span>
     <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
@@ -14678,7 +14678,6 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
     <span class="o">.</span><span class="n">sort_index</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
     <span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
-   <span class="c1"># .loc[pd.to_datetime(&quot;1850&quot;):]</span>
 <span class="p">)</span>
 </pre></div>
 

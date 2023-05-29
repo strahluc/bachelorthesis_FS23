@@ -14702,7 +14702,6 @@ Dokumentation der Spalten: <a href="https://www.ngdc.noaa.gov/stp/space-weather/
     <span class="c1"># drop the first column with the raw string</span>
     <span class="n">df_solar_flare</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="c1">#df_solar_flare.to_csv(&#39;solar_flare_new_&#39; + str(year) +&#39;.csv&#39;, sep=&#39;;&#39;, index=False)</span>
     <span class="n">df_sf_concat</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_sf_concat</span><span class="p">,</span> <span class="n">df_solar_flare</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     
 <span class="n">df_sf_concat</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">&#39;data_files/solar_flare_new.csv&#39;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;;&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -14766,7 +14765,7 @@ Dokumentation der Spalten: <a href="https://www.ngdc.noaa.gov/stp/space-weather/
                                                  <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">df_sf</span><span class="p">[</span><span class="s1">&#39;X-ray Class&#39;</span><span class="p">]</span><span class="o">==</span> <span class="s1">&#39;X&#39;</span><span class="p">,</span> <span class="n">df_sf</span><span class="p">[</span><span class="s1">&#39;X-ray intensity&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">10</span> <span class="o">**</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">0</span>
 <span class="p">)))))</span>
 
-<span class="c1"># Remove all rows with &quot;X-ray intensity&quot; = 0</span>
+<span class="c1"># Entferne alle Datensätze mit &quot;X-ray intensity&quot; = 0</span>
 <span class="n">df_sf</span> <span class="o">=</span> <span class="n">df_sf</span><span class="p">[(</span><span class="n">df_sf</span><span class="o">.</span><span class="n">XRay_class_nr1</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)]</span>
 
 <span class="n">df_test</span> <span class="o">=</span> <span class="n">df_sf</span>
@@ -14860,7 +14859,8 @@ Step 6: Speichere das neue Dataframe als "df_extreme.csv ab"<br></p>
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df_R</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;data_files/df_extreme.csv&#39;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span><span class="n">usecols</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;XRay_class_nr1&#39;</span><span class="p">])</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Aufbereitetes Dataframe importieren</span>
+<span class="n">df_R</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;data_files/df_extreme.csv&#39;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span><span class="n">usecols</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;XRay_class_nr1&#39;</span><span class="p">])</span>
 
 <span class="c1"># in Datei df_extreme_neu.csv speichern</span>
 <span class="n">df_R</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">&#39;data_files/R_df_solarflare.csv&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
