@@ -15,7 +15,7 @@ sunspot_data:<br>
 solar_flare_data:<br>
   - "Datenaufbereitung_Sonneneruptionen.ipynb": ausführbare Python-Datei für die Aufbereitung aller CSV-Dateien im Ordner "solar_flare_data/data_files"<br>
   - "Datenaufbereitung_Sonneneruptionen.html": Python-Code als nicht ausführbare HTML-Datei<br>
-  - "Datenanalyse_Sonneneruptionen.html": ausführbare Python-Datei für die Datenanalyse der Daten über die Sonneneruptionen (basiert auf "df_extreme.csv")<br>
+  - "Datenanalyse_Sonneneruptionen.ipynb": ausführbare Python-Datei für die Datenanalyse der Daten über die Sonneneruptionen (basiert auf "df_extreme.csv")<br>
   - "Datenanalyse_Sonneneruptionen.html": Python-Code als nicht ausführbare HTML-Datei<br>
   - "Python_EVT_calc.ipynb": ausführbare Python-Datei für die EVT-Berechnung der Wahrscheinlichkeit mit der POT-Methode. Verwendetes Package: pyextremes<br>
   - "Python_EVT_calc.html": Python-Code als nicht ausführbare HTML-Datei<br>
